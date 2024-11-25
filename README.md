@@ -67,12 +67,6 @@ func main() {
 Register an event and define your first component.
 
 ```go
-func main() {
-    // ... add to main
-    sirkeji.Subscribe(gStreamer, NewNumberPublisher(gStreamer.Publish))
-    // ...
-}
-
 var Number sirkeji.EventType = "Number"
 
 func init() {
@@ -116,7 +110,18 @@ func (n NumberPublisher) OnSubscribed() {
 func (n NumberPublisher) OnUnsubscribed() {}
 ```
 
-When you run the application, you will immediately see a partially working software, and an output like below.
+Attach your component to the streamer.
+
+```go
+func main() {
+	sirkeji.Subscribe(gStreamer, sirkeji.NewLogger())
+	sirkeji.Subscribe(gStreamer, NewNumberPublisher(gStreamer.Publish))
+
+	sirkeji.WaitForTermination(gStreamer)
+}
+```
+
+When you run the application, you will **immediately** see working software, a system that can be built brick by brick, and an output like the one below.
 
 ```bash
 2024/11/26 00:12:38 [logger-1732569158496] subscribed to the streamer
@@ -127,7 +132,7 @@ When you run the application, you will immediately see a partially working softw
 2024/11/26 00:12:42.498675 [number-publisher-1732569158496] *Number*, m: 3 | pl: full
 ```
 
-Let's create another component which listens for a `Number` event, squares it and emits a `SquaredNumber` event.
+Let's create another component that listens for a `Number` event, squares it, and publishes a `SquaredNumber` event.
 
 ```go
 var SquaredNumber sirkeji.EventType = "SquaredNumber"
@@ -172,7 +177,7 @@ func (s SquaredNumberPublisher) OnUnsubscribed() {}
 
 ```
 
-Don't forget to attach components to the streamer.
+Don't forget to attach component to the streamer.
 
 ```go
 func main() {
@@ -196,6 +201,8 @@ When you run this code you will see an output like below.
 2024/11/26 00:22:53.510227 [number-publisher-1732569771508] *Number*, m: 52 | pl: full
 2024/11/26 00:22:54.510833 [squared-number-publisher-1732569771508] *SquaredNumber*, m: 6889 | pl: full
 ```
+
+*Note: With Sirkeji, you can also subscribe and unsubscribe components dynamically and perform much more complex operations. Please refer to the godoc for details.*
 
 ## Contributing
 
