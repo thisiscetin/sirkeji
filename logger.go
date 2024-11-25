@@ -1,37 +1,66 @@
 package sirkeji
 
 import (
-	"bytes"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"time"
 )
 
 // Logger is a Subscriber implementation that logs all received events.
 //
-// It provides unique identification via `Uid()` and processes events by logging their details.
-// A custom output can be provided during instantiation to direct log messages for testing or debugging purposes.
+// Logs are written to the screen by default (os.Stdout). Additional outputs
+// such as a bytes.Buffer or a file can be added dynamically.
 type Logger struct {
-	uid    string
-	logger *log.Logger
+	uid              string
+	baseOutput       io.Writer
+	additionalOutput io.Writer
+	logger           *log.Logger
 }
 
-// NewLogger creates a new Logger instance with the specified output.
+// NewLogger creates a new Logger instance.
 //
-// Parameters:
-//   - output: A *bytes.Buffer for capturing log output (useful for testing).
+// Logs are written to the screen (os.Stdout) by default.
 //
 // Returns:
 //   - A pointer to a new Logger instance.
 //
 // Example:
 //
-//	var buf bytes.Buffer
-//	logger := NewLogger(&buf)
-func NewLogger(output *bytes.Buffer) *Logger {
+//	logger := NewLogger()
+func NewLogger() *Logger {
 	return &Logger{
-		uid:    fmt.Sprintf("logger-%d", time.Now().UnixNano()),
-		logger: log.New(output, "", log.LstdFlags|log.Lmicroseconds),
+		uid:        fmt.Sprintf("logger-%d", time.Now().UnixMilli()),
+		baseOutput: os.Stdout,
+		logger:     log.New(os.Stdout, "", log.LstdFlags|log.Lmicroseconds),
+	}
+}
+
+// SetAdditionalOutput sets an optional second output for the logger.
+//
+// Parameters:
+//   - output: An io.Writer (e.g., bytes.Buffer, file) to receive log messages in addition to the screen.
+//
+// Behavior:
+//   - Updates the logger to write to both os.Stdout and the provided output.
+//   - If no additional output is set, the logger writes only to os.Stdout.
+//
+// Example:
+//
+//	var buf bytes.Buffer
+//	logger.SetAdditionalOutput(&buf)
+//
+//	file, _ := os.Create("log.txt")
+//	defer file.Close()
+//	logger.SetAdditionalOutput(file)
+func (l *Logger) SetAdditionalOutput(output io.Writer) {
+	if output != nil {
+		l.additionalOutput = output
+		multiWriter := io.MultiWriter(l.baseOutput, l.additionalOutput)
+		l.logger.SetOutput(multiWriter)
+	} else {
+		l.logger.SetOutput(l.baseOutput)
 	}
 }
 
