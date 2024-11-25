@@ -130,7 +130,7 @@ func (sm *SubscriptionManager) Subscribe() error {
 
 	sm.subscriber.OnSubscribed()
 
-	log.Printf("[%s] subscribed to the streamer\n", "ss")
+	log.Printf("[%s] subscribed to the streamer\n", sm.subscriber.Uid())
 	return nil
 }
 
