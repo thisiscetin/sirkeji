@@ -51,7 +51,7 @@ func (ms *MockSubscriber) OnUnsubscribed() {
 func (ms *MockSubscriber) GetProcessedEvents() []Event {
 	ms.Lock()
 	defer ms.Unlock()
-	
+
 	return ms.processed
 }
 

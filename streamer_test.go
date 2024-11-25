@@ -91,7 +91,7 @@ func TestPublish(t *testing.T) {
 
 	t.Run("Publish with no subscribers", func(t *testing.T) {
 		streamer := NewStreamer()
-		
+
 		// No subscribers; publish should not block or panic
 		event := Event{Publisher: "system", Type: Info, Meta: "No Subscribers"}
 		streamer.Publish(event)

@@ -101,9 +101,9 @@ var (
 		sync.RWMutex
 		types map[EventType]struct{}
 	}{types: map[EventType]struct{}{
-		Error:    struct{}{},
-		Info:     struct{}{},
-		Shutdown: struct{}{},
+		Error:    {},
+		Info:     {},
+		Shutdown: {},
 	}}
 )
 
