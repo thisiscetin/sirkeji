@@ -147,3 +147,35 @@ func IsEventTypeRegistered(eventType EventType) bool {
 	_, exists := eventTypeRegistry.types[eventType]
 	return exists
 }
+
+// RegisterEventTypes is a helper function that registers multiple EventTypes in a single call.
+//
+// This function simplifies the process of registering multiple event types by internally
+// calling `RegisterEventType` for each provided EventType. It ensures that each event type
+// is unique and adheres to the constraints of the `RegisterEventType` function.
+//
+// Parameters:
+//   - eventTypes: A variadic list of EventType values to be registered.
+//
+// Panics:
+//   - If any of the provided EventTypes are already registered, the function will panic,
+//     as `RegisterEventType` does not allow duplicate registrations.
+//
+// Example Usage:
+//
+//	// Define custom event types
+//	const (
+//		CustomType1 EventType = "CustomType1"
+//		CustomType2 EventType = "CustomType2"
+//	)
+//
+//	// Register multiple event types at once
+//	sirkeji.RegisterEventTypes(CustomType1, CustomType2)
+//
+// Notes:
+//   - Ensure all provided EventTypes are unique before calling this function to avoid panics.
+func RegisterEventTypes(eventTypes ...EventType) {
+	for _, eventType := range eventTypes {
+		RegisterEventType(eventType)
+	}
+}
