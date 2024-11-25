@@ -26,25 +26,6 @@ go get github.com/thisiscetin/sirkeji
 
 ## Getting Started
 
-To demonstrate Sirkeji, let's build a system where one component randomly publishes numbers, and others react to that event.
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request with your changes. Make sure your code is well-tested and aligns with the project's goals.
-- **In-Memory Streaming**: Ultra-fast event processing without the complexity of external message brokers.
-- **Decoupled Components**: Promote modularity by eliminating tightly coupled dependencies.
-- **Extensible Subscribers**: Add, modify, or replace subscribers easily without breaking the system.
-
-## Installation
-
-Install Sirkeji using `go get`
-
-```bash
-go get github.com/thisiscetin/sirkeji
-```
-
-## Getting Started
-
 To demonstrate Sirkeji, let's build a system where one component randomly publishes numbers, and others react to following events.
 
 Start by subscribing a built-in logger to visualize events, and a blocking function waiting for SIGTERM.
