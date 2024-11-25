@@ -1,7 +1,7 @@
 ## ☱ Sirkeji
 
 ![Tests](https://github.com/thisiscetin/sirkeji/actions/workflows/tests.yml/badge.svg)
-![Go Report](https://goreportcard.com/badge/github.com/thisiscetin/sirkeji)
+[![Go Report](https://goreportcard.com/badge/github.com/thisiscetin/sirkeji)](https://goreportcard.com/report/github.com/thisiscetin/sirkeji)
 [![Go Reference](https://pkg.go.dev/badge/github.com/thisiscetin/sirkeji.svg)](https://pkg.go.dev/github.com/thisiscetin/sirkeji)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
