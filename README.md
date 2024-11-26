@@ -26,7 +26,9 @@ go get github.com/thisiscetin/sirkeji
 
 ## Getting Started
 
-*Please head to the examples folder for a working example.*
+Please check the [number example](https://github.com/thisiscetin/sirkeji/tree/main/example/numbers) to understand better how Sirkeji helps you build an event-centric system.
+
+## Brief Overview
 
 Sirkeji needs components to implement `sirkeji.Subscriber` interface to connect them to the streamer.
 
