@@ -26,7 +26,7 @@ go get github.com/thisiscetin/sirkeji
 
 ## Getting Started
 
-Please check the [number example](https://github.com/thisiscetin/sirkeji/tree/main/example/numbers) to understand better how Sirkeji helps you build an event-centric system.
+Please check [numbers example](https://github.com/thisiscetin/sirkeji/tree/main/example/numbers) to understand better how Sirkeji helps you build an event-centric system.
 
 ## Brief Overview
 
