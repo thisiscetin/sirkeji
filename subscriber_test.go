@@ -9,10 +9,10 @@ import (
 
 // MockSubscriber is a mock implementation of the Subscriber interface for testing.
 type MockSubscriber struct {
-	uid            string
-	processed      []Event
-	onSubscribed   bool
-	onUnsubscribed bool
+	uid          string
+	processed    []Event
+	subscribed   bool
+	unsubscribed bool
 	sync.Mutex
 }
 
@@ -34,18 +34,18 @@ func (ms *MockSubscriber) Process(event Event) {
 	ms.processed = append(ms.processed, event)
 }
 
-func (ms *MockSubscriber) OnSubscribed() {
+func (ms *MockSubscriber) Subscribed() {
 	ms.Lock()
 	defer ms.Unlock()
 
-	ms.onSubscribed = true
+	ms.subscribed = true
 }
 
-func (ms *MockSubscriber) OnUnsubscribed() {
+func (ms *MockSubscriber) Unsubscribed() {
 	ms.Lock()
 	defer ms.Unlock()
 
-	ms.onUnsubscribed = true
+	ms.unsubscribed = true
 }
 
 func (ms *MockSubscriber) GetProcessedEvents() []Event {
@@ -105,9 +105,9 @@ func TestSubscriptionManagerSubscribe(t *testing.T) {
 		t.Fatalf("unexpected error during subscription: %v", err)
 	}
 
-	// Verify that the subscriber's OnSubscribed method was called
-	if !subscriber.onSubscribed {
-		t.Errorf("expected OnSubscribed to be called, but it wasn't")
+	// Verify that the subscriber's Subscribed method was called
+	if !subscriber.subscribed {
+		t.Errorf("expected Subscribed to be called, but it wasn't")
 	}
 
 	// Verify that the subscriber receives published events
@@ -137,9 +137,9 @@ func TestSubscriptionManagerUnsubscribe(t *testing.T) {
 	_ = manager.Subscribe()
 	manager.Unsubscribe()
 
-	// Verify that the subscriber's OnUnsubscribed method was called
-	if !subscriber.onUnsubscribed {
-		t.Errorf("expected OnUnsubscribed to be called, but it wasn't")
+	// Verify that the subscriber's Unsubscribed method was called
+	if !subscriber.unsubscribed {
+		t.Errorf("expected Unsubscribed to be called, but it wasn't")
 	}
 
 	// Verify that the subscriber no longer receives events

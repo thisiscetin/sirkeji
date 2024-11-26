@@ -26,161 +26,44 @@ go get github.com/thisiscetin/sirkeji
 
 ## Getting Started
 
-To demonstrate Sirkeji, let's build a system where one component randomly publishes numbers, and others react to following events.
+*Please head to the examples folder for a working example.*
 
-Start by subscribing a built-in logger to visualize events, and a blocking function waiting for SIGTERM.
+Sirkeji needs components to implement `sirkeji.Subscriber` interface to connect them to the streamer.
+
+- a `Uid() string` function which returns a `string` unique id of the component
+- a `Process(event sirkeji.Event)` function, which is called in a dedicated goroutine for processing events
+- a `Subscribed()` function to perform boot-up operations like initializing a ticker in a separate goroutine
+- a `Unsubscribed()` function to perform clean-up operations and handling graceful shutdowns
+
 ```go
-package main
 
-import "github.com/thisiscetin/sirkeji"
+type Publisher struct {}
 
+func (p *Publisher) Uid() string {}
+
+func (p *Publisher) Process(event sirkeji.Event) {}
+
+func (p *Publisher) Subscribed() {}
+
+func (p *Publisher) Unsubscribed() {}
+```
+
+One way to subscribe components to a stream is as follows:
+
+```go
 var (
 	gStreamer = sirkeji.NewStreamer()
 )
 
 func main() {
 	sirkeji.Subscribe(gStreamer, sirkeji.NewLogger())
-	
-	sirkeji.WaitForTermination(gStreamer)
-}
-```
-
-Register an event and define your first component.
-
-```go
-var Number sirkeji.EventType = "Number"
-
-func init() {
-	sirkeji.RegisterEventType(Number)
-}
-
-type NumberPublisher struct {
-	uid     string
-	publish func(e sirkeji.Event)
-}
-
-func NewNumberPublisher(publish func(e sirkeji.Event)) NumberPublisher {
-	return NumberPublisher{
-		uid:     fmt.Sprintf("number-publisher-%d", time.Now().UnixMilli()),
-		publish: publish,
-	}
-}
-
-func (n NumberPublisher) Uid() string {
-	return n.uid
-}
-
-func (n NumberPublisher) Process(event sirkeji.Event) {}
-
-func (n NumberPublisher) OnSubscribed() {
-	go func() {
-		for {
-			time.Sleep(1 * time.Second)
-			randomNumber := rand.Intn(100)
-			
-			n.publish(sirkeji.Event{
-				Publisher: n.uid,
-				Type:      Number,
-				Meta:      strconv.Itoa(randomNumber),
-				Payload:   randomNumber,
-			})
-		}
-	}()
-}
-
-func (n NumberPublisher) OnUnsubscribed() {}
-```
-
-Attach your component to the streamer.
-
-```go
-func main() {
-	sirkeji.Subscribe(gStreamer, sirkeji.NewLogger())
-	sirkeji.Subscribe(gStreamer, NewNumberPublisher(gStreamer.Publish))
+	sirkeji.Subscribe(gStreamer, number.NewPublisher("number-publisher-1", gStreamer.Publish))
+	sirkeji.Subscribe(gStreamer, number.NewPublisher("number-publisher-2", gStreamer.Publish))
+	sirkeji.Subscribe(gStreamer, squared_number.NewPublisher("squared-number-publisher-1", gStreamer.Publish))
+	sirkeji.Subscribe(gStreamer, number_count.NewPublisher("number-count-publisher-1", gStreamer.Publish))
 
 	sirkeji.WaitForTermination(gStreamer)
 }
-```
-
-When you run the application, you will **immediately** see working software, a system that can be built brick by brick, and an output like the one below.
-
-```bash
-2024/11/26 00:12:38 [logger-1732569158496] subscribed to the streamer
-2024/11/26 00:12:38 [number-publisher-1732569158496] subscribed to the streamer
-2024/11/26 00:12:39.497028 [number-publisher-1732569158496] *Number*, m: 59 | pl: full
-2024/11/26 00:12:40.497705 [number-publisher-1732569158496] *Number*, m: 85 | pl: full
-2024/11/26 00:12:41.497917 [number-publisher-1732569158496] *Number*, m: 95 | pl: full
-2024/11/26 00:12:42.498675 [number-publisher-1732569158496] *Number*, m: 3 | pl: full
-```
-
-Let's create another component that listens for a `Number` event, squares it, and publishes a `SquaredNumber` event.
-
-```go
-var SquaredNumber sirkeji.EventType = "SquaredNumber"
-
-func init() {
-	sirkeji.RegisterEventType(SquaredNumber)
-}
-
-type SquaredNumberPublisher struct {
-	uid     string
-	publish func(e sirkeji.Event)
-}
-
-func NewSquaredNumberPublisher(publish func(e sirkeji.Event)) SquaredNumberPublisher {
-	return SquaredNumberPublisher{
-		uid:     fmt.Sprintf("squared-number-publisher-%d", time.Now().UnixMilli()),
-		publish: publish,
-	}
-}
-
-func (s SquaredNumberPublisher) Uid() string {
-	return s.uid
-}
-
-func (s SquaredNumberPublisher) Process(event sirkeji.Event) {
-	if event.Type == Number {
-		number := event.Payload.(int)
-		numberSq := number * number
-
-		s.publish(sirkeji.Event{
-			Publisher: s.uid,
-			Type:      SquaredNumber,
-			Meta:      strconv.Itoa(numberSq),
-			Payload:   numberSq,
-		})
-	}
-}
-
-func (s SquaredNumberPublisher) OnSubscribed() {}
-
-func (s SquaredNumberPublisher) OnUnsubscribed() {}
-
-```
-
-Don't forget to attach component to the streamer.
-
-```go
-func main() {
-	sirkeji.Subscribe(gStreamer, sirkeji.NewLogger())
-	sirkeji.Subscribe(gStreamer, NewNumberPublisher(gStreamer.Publish))
-	sirkeji.Subscribe(gStreamer, NewSquaredNumberPublisher(gStreamer.Publish))
-
-	sirkeji.WaitForTermination(gStreamer)
-}
-```
-
-When you run this code you will see an output like below.
-
-```bash
-2024/11/26 00:22:51 [logger-1732569771508] subscribed to the streamer
-2024/11/26 00:22:51 [number-publisher-1732569771508] subscribed to the streamer
-2024/11/26 00:22:51 [squared-number-publisher-1732569771508] subscribed to the streamer
-2024/11/26 00:22:52.509421 [squared-number-publisher-1732569771508] *SquaredNumber*, m: 8464 | pl: full
-2024/11/26 00:22:52.509539 [number-publisher-1732569771508] *Number*, m: 92 | pl: full
-2024/11/26 00:22:53.510132 [squared-number-publisher-1732569771508] *SquaredNumber*, m: 2704 | pl: full
-2024/11/26 00:22:53.510227 [number-publisher-1732569771508] *Number*, m: 52 | pl: full
-2024/11/26 00:22:54.510833 [squared-number-publisher-1732569771508] *SquaredNumber*, m: 6889 | pl: full
 ```
 
 *Note: With Sirkeji, you can also subscribe and unsubscribe components dynamically and perform much more complex operations. Please refer to the godoc for details.*

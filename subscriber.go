@@ -25,15 +25,15 @@ type Subscriber interface {
 	//   - event: The Event instance to be processed by the subscriber.
 	Process(event Event)
 
-	// OnSubscribed is called when the subscriber is successfully connected to the Streamer.
+	// Subscribed is called when the subscriber is successfully connected to the Streamer.
 	//
 	// Use this method to perform any initialization or logging when the subscription is established.
-	OnSubscribed()
+	Subscribed()
 
-	// OnUnsubscribed is called when the subscriber is disconnected from the Streamer.
+	// Unsubscribed is called when the subscriber is disconnected from the Streamer.
 	//
 	// Use this method to perform any cleanup or logging when the subscription is terminated.
-	OnUnsubscribed()
+	Unsubscribed()
 }
 
 // SubscriptionManager manages the lifecycle of a Subscriber with a Streamer.
@@ -107,7 +107,7 @@ func NewSubscriptionManager(streamer Streamer, subscriber Subscriber) (*Subscrip
 //
 // Behavior:
 //   - Starts a goroutine to listen for events and route them to the Subscriber's Process method.
-//   - Calls the Subscriber's OnSubscribed method upon successful subscription.
+//   - Calls the Subscriber's Subscribed method upon successful subscription.
 //
 // Example:
 //
@@ -128,7 +128,7 @@ func (sm *SubscriptionManager) Subscribe() error {
 		}
 	}(ch)
 
-	sm.subscriber.OnSubscribed()
+	sm.subscriber.Subscribed()
 
 	log.Printf("[%s] subscribed to the streamer\n", sm.subscriber.Uid())
 	return nil
@@ -137,7 +137,7 @@ func (sm *SubscriptionManager) Subscribe() error {
 // Unsubscribe disconnects the subscriber from the Streamer.
 //
 // This method removes the Subscriber from the Streamer, ensuring it no longer
-// receives events. It also invokes the Subscriber's OnUnsubscribed method.
+// receives events. It also invokes the Subscriber's Unsubscribed method.
 //
 // Parameters:
 //   - None.
@@ -146,7 +146,7 @@ func (sm *SubscriptionManager) Subscribe() error {
 //   - None.
 //
 // Behavior:
-//   - Calls the Subscriber's OnUnsubscribed method after successfully unsubscribing.
+//   - Calls the Subscriber's Unsubscribed method after successfully unsubscribing.
 //
 // Example:
 //
@@ -154,7 +154,7 @@ func (sm *SubscriptionManager) Subscribe() error {
 //	manager.Unsubscribe()
 func (sm *SubscriptionManager) Unsubscribe() {
 	sm.streamer.Unsubscribe(sm.subscriber.Uid())
-	sm.subscriber.OnUnsubscribed()
+	sm.subscriber.Unsubscribed()
 
 	log.Printf("[%s] unsubscribed from the streamer\n", sm.subscriber.Uid())
 }

@@ -106,8 +106,8 @@ func (l *Logger) Process(event Event) {
 //
 // Example:
 //
-//	logger.OnSubscribed()
-func (l *Logger) OnSubscribed() {}
+//	logger.Subscribed()
+func (l *Logger) Subscribed() {}
 
 // OnUnsubscribed is called when the Logger is unsubscribed from a Streamer.
 //
@@ -116,5 +116,5 @@ func (l *Logger) OnSubscribed() {}
 //
 // Example:
 //
-//	logger.OnUnsubscribed()
-func (l *Logger) OnUnsubscribed() {}
+//	logger.Unsubscribed()
+func (l *Logger) Unsubscribed() {}
