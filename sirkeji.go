@@ -37,6 +37,34 @@ func Subscribe(streamer Streamer, subscriber Subscriber) {
 	}
 }
 
+// Unsubscribe is a helper function that simplifies the process of unsubscribe a Subscriber to a Streamer.
+//
+// This function creates a SubscriptionManager for the given Streamer and Subscriber,
+// and immediately unsubscribes the Subscriber. If any errors occur during this process,
+// the function panics, making it suitable for scenarios where failures during subscription
+// are considered critical and should terminate the application.
+//
+// Parameters:
+//   - streamer: The Streamer instance to which the Subscriber will be connected.
+//   - subscriber: The Subscriber instance that will receive events from the Streamer.
+//
+// Panics:
+//   - If the SubscriptionManager cannot be created (e.g., due to invalid arguments).
+//
+// Example Usage:
+//
+//	subscriber := &MySubscriber{}
+//	streamer := sirkeji.NewStreamer()
+//	sirkeji.UnSubscribe(streamer, subscriber)
+func Unsubscribe(streamer Streamer, subscriber Subscriber) {
+	manager, err := NewSubscriptionManager(streamer, subscriber)
+	if err != nil {
+		panic(err)
+	}
+
+	manager.Unsubscribe()
+}
+
 // WaitForTermination waits for OS termination signals and publishes a Shutdown event.
 //
 // Parameters:
