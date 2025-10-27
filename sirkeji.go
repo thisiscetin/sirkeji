@@ -1,7 +1,7 @@
 package sirkeji
 
 import (
-	"os"
+	"context"
 	"os/signal"
 	"syscall"
 	"time"
@@ -68,7 +68,9 @@ func Unsubscribe(streamer Streamer, subscriber Subscriber) {
 // WaitForTermination waits for OS termination signals and publishes a Shutdown event.
 //
 // Parameters:
+//   - ctx: Global context.Context
 //   - streamer: The Streamer instance to publish the Shutdown event.
+//   - delay: Custom termination delay for application to close
 //
 // Behavior:
 //   - Waits for SIGINT or SIGTERM signals.
@@ -78,21 +80,21 @@ func Unsubscribe(streamer Streamer, subscriber Subscriber) {
 // Example:
 //
 //	sirkeji.WaitForTermination(streamer)
-func WaitForTermination(streamer Streamer) {
-	chExit := make(chan os.Signal, 1)
-	signal.Notify(chExit, os.Interrupt, syscall.SIGTERM)
+func WaitForTermination(ctx context.Context, streamer Streamer, delay time.Duration) {
+	ctx, cancel := signal.NotifyContext(ctx, syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
 
 	// Wait for termination signal
-	<-chExit
+	<-ctx.Done()
 
 	// Publish a Shutdown event
 	streamer.Publish(Event{
 		Publisher: "main",
-		Type:      "Shutdown",
+		Type:      Shutdown,
 		Meta:      "Application is shutting down",
 		Payload:   nil,
 	})
 
 	// Allow subscribers time to process the Shutdown event
-	time.Sleep(2 * time.Second)
+	time.Sleep(delay)
 }
